@@ -1,29 +1,31 @@
 node{
+    def buildNum = BUILD_NUMBER
     stage("Git CheckOut"){
         git url: 'https://github.com/MithunTechnologiesDevOps/spring-boot-mongo-docker.git',branch: 'master'
     }
     
-    stage(" Maven Clean Package"){
+    stage("Maven Clean Package"){
       def mavenHome =  tool name: "Maven-3.8.3", type: "maven"
       def mavenCMD = "${mavenHome}/bin/mvn"
       sh "${mavenCMD} clean package"
     } 
     
-    stage("Build Dokcer Image") {
-         sh "docker build -t arunnsm/spring-boot-mongo ."
+    stage("Build Docker Image") {
+         sh "docker build -t 3.108.121.244:8083/spring-boot-mongo:${buildNum} ."
     }
     
     stage("Docker Push"){
-        withCredentials([string(credentialsId: 'Docker_Hub_Password', variable: 'Docker_Hub_Password')]) {
-          sh "docker login -u arunnsm -p ${Docker_Hub_Password}"
+        withCredentials([string(credentialsId: 'Private_Repo_Password', variable: 'Private_Repo_Password')]) {
+          sh "docker login -u admin -p ${Private_Repo_Password} 3.108.121.244:8083"
         }
-        sh "docker push arunnsm/spring-boot-mongo"
+        sh "docker push 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
         
-    }
+    }   
     
-    //Remove local image from Jenkins Server after pushing to docker repo.
+    
+    //Remove local image from JenkinsServer after pushing to private docker repo.
     stage("Remove Local Image"){
-        sh "docker rmi -f arunnsm/spring-boot-mongo"
+        sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
     
     stage("Deploy to docker swarm cluster"){
