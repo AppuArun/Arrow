@@ -22,17 +22,20 @@ node{
         
     }   
     
-    
     //Remove local image from JenkinsServer after pushing to private docker repo.
     stage("Remove Local Image"){
         sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
     
-    stage("Deploy to docker swarm cluster"){
+    stage("Deploy to DockerSwarm cluster"){
         sshagent(['Docker_Swarm_Manager_Dev']) {
-		    sh 'scp -o StrictHostKeyChecking=no  docker-compose.yml ubuntu@172.31.47.232:'
-		    //sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.47.232 docker stack rm springboot'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.47.232 docker stack deploy --prune --compose-file docker-compose.yml springboot'
+	   withCredentials([string(credentialsId: 'Private_Repo_Password', variable: 'Private_Repo_Password')]) {
+	    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.47.232 docker login -u admin -p ${Private_Repo_Password} 3.108.121.244:8083"
+           }	    
+           //Usage of --with-registry-auth is needed as authentication is done only for MasterMachine	   
+	   sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.47.232 docker service rm arrowspringapp || true'
+           sh "ssh -o ubuntu@172.31.47.232 docker service create --name arrowspringapp -p 7070:8080 --replicas 2 --with-registry-auth 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
+	   
         }
     }
 }
