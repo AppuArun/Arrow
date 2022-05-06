@@ -1,6 +1,6 @@
 node{
     def buildNum = BUILD_NUMBER
-    stage("Git CheckOut"){
+    stage("Git Clone"){
         git url: 'https://github.com/arunnsm/Arrow.git',branch: 'master'
     }
     
@@ -14,7 +14,7 @@ node{
          sh "docker build -t 3.108.121.244:8083/spring-boot-mongo:${buildNum} ."
     }
     
-    stage("Docker Push"){
+    stage("Upload Image to Nexus"){
         withCredentials([string(credentialsId: 'Private_Repo_Password', variable: 'Private_Repo_Password')]) {
           sh "docker login -u admin -p ${Private_Repo_Password} 3.108.121.244:8083"
         }
@@ -27,7 +27,7 @@ node{
         sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
     
-    stage("Deploy to EKS CLuster"){
+    stage("Deploy to KOPS Cluster"){
         withKubeConfig(credentialsId: 'KOPSKubeConfig') {
          sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
     }
