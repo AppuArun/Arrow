@@ -31,3 +31,4 @@ node{
         withKubeConfig(credentialsId: 'KOPSKubeConfig') {
          sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
     }
+}    
