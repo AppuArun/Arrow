@@ -12,7 +12,7 @@ spec:
         name: springboot
     spec:
       imagePullSecrets:
-      - name: dockerprivatereposecret
+      - name: dockerreposecret
       containers:
       - image: 3.108.121.244:8083/spring-boot-mongo
         name: springboot
