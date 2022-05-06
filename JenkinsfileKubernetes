@@ -11,12 +11,12 @@ node{
     } 
     
     stage("Build Docker Image") {
-         sh "docker build -t 172.31.5.171:8083/spring-boot-mongo:${buildNum} ."
+         sh "docker build -t 3.108.121.244:8083/spring-boot-mongo:${buildNum} ."
     }
     
     stage("Upload Image to Nexus"){
         withCredentials([string(credentialsId: 'Private_Repo_Password', variable: 'Private_Repo_Password')]) {
-          sh "docker login -u admin -p ${Private_Repo_Password} 172.31.5.171:8083"
+          sh "docker login -u admin -p ${Private_Repo_Password} 3.108.121.244:8083"
         }
         sh "docker push 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
         
@@ -24,7 +24,7 @@ node{
     
     //Remove local image from JenkinsServer after pushing to private docker repo.
     stage("Remove Local Image"){
-        sh "docker rmi -f 172.31.5.171:8083/spring-boot-mongo:${buildNum}"
+        sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
     
     stage("Deploy to KOPS Cluster"){
