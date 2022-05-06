@@ -1,7 +1,7 @@
 node{
     def buildNum = BUILD_NUMBER
     stage("Git CheckOut"){
-        git url: 'https://github.com/MithunTechnologiesDevOps/spring-boot-mongo-docker.git',branch: 'master'
+        git url: 'https://github.com/arunnsm/Arrow.git',branch: 'master'
     }
     
     stage("Maven Clean Package"){
@@ -26,18 +26,8 @@ node{
     stage("Remove Local Image"){
         sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
-     
-     stage("Deploy To Kuberates Cluster"){
-       kubernetesDeploy(
-         configs: 'springBootMongo.yml', 
-         kubeconfigId: 'KUBERNATES_CONFIG',
-         enableConfigSubstitution: true
-        )
-     }
-	 
-	  /**
-      stage("Deploy To Kuberates Cluster"){
-        sh 'kubectl apply -f springBootMongo.yml'
-      } **/
-     
-}
+    
+    stage("Deploy to EKS CLuster"){
+        withKubeConfig(credentialsId: 'KOPSKubeConfig') {
+         sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
+    }
