@@ -14,10 +14,11 @@ node{
          sh "docker build -t 3.108.121.244:8083/spring-boot-mongo:${buildNum} ."
     }
     
+    
     stage("Upload Image to Nexus"){
-        withCredentials([string(credentialsId: 'dockerrepossecret', variable: 'dockerrepossecret')]) {
-          sh "docker login -u admin -p ${dockerrepossecret} 3.108.121.244:8083"
-        }
+        withCredentials([string(credentialsId: 'Nexus_PrivateRepo_Pwd', variable: 'Nexus_PrivateRepo_Pwd')]) {
+          sh "docker login -u admin -p ${Nexus_PrivateRepo_Pwd} 3.108.121.244:8083"
+}
         sh "docker push 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
         
     }   
