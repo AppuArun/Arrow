@@ -30,5 +30,6 @@ node{
     stage("Deploy to KOPS Cluster"){
         withKubeConfig(credentialsId: 'KOPSKubeConfig') {
          sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
+         }
     }
 }    
