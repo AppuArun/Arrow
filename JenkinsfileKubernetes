@@ -15,8 +15,8 @@ node{
     }
     
     stage("Upload Image to Nexus"){
-        withCredentials([string(credentialsId: 'Private_Repo_Password', variable: 'Private_Repo_Password')]) {
-          sh "docker login -u admin -p ${Private_Repo_Password} 3.108.121.244:8083"
+        withCredentials([string(credentialsId: 'dockerrepossecret', variable: 'dockerrepossecret')]) {
+          sh "docker login -u admin -p ${dockerrepossecret} 3.108.121.244:8083"
         }
         sh "docker push 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
         
@@ -27,9 +27,10 @@ node{
         sh "docker rmi -f 3.108.121.244:8083/spring-boot-mongo:${buildNum}"
     }
     
-    stage("Deploy to KOPS Cluster"){
-        withKubeConfig(credentialsId: 'KOPSKubeConfig') {
-         sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
-         }
+    stage("Deploy to EKS Cluster"){
+        withCredentials([string(credentialsId: 'dockerrepossecret', variable: 'dockerrepossecret')])
+        withKubeConfig(credentialsId: 'KubeConfig') {
+        sh 'kubectl apply -f springBootMongo-PrivateRepo.yml'
+        }
     }
 }    
